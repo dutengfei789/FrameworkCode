@@ -29,7 +29,7 @@
                     {field:'stuAge',title:'学生年龄',width:100,align:'right'},
                     {field:'stuGender',title:'性别',width:100,formatter:function (value,row,index) {
                             // alert(value);
-                            console.log(value);
+                            // console.log(value);
                             if (value=="0" ) {
                                 // alert("true")
                                 return"男";
@@ -51,7 +51,7 @@
                             $.messager.confirm("确认删除的内容","请确认是否删除选中的内容",function (result) {
                                 if (result) {
                                     //创建一个数组，用户存放用户id
-                                    var userIds = new Array(selectRows.length);
+                                    var stuIds = new Array(selectRows.length);
                                     for (var i = 0; i < selectRows.length; i++) {
                                         stuIds[i]=selectRows[i].stuId;
                                     };
@@ -95,7 +95,7 @@
             $("#updateUserForm").form({
                 url:"updateStudent.do",
                 success:function(data){
-                    alert(data);
+                    // alert(data);
                     if (data=="true") {
                         $("#updateDialog").dialog("close");
                         $("#myDatagrid").datagrid("reload");

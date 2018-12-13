@@ -25,10 +25,11 @@ public class StudentServiceImpl implements StudentService {
 
         Page<Student> studentPage = new Page<>(page, rows);
         QueryWrapper<Student> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("is_delete",0);
 
         if (stuName != null && !"".equals(stuName)) {
 
-            queryWrapper.eq("is_delete",0).like("stu_name", stuName);
+            queryWrapper.like("stu_name", stuName);
         }
         IPage<Student> studentIPage = studentDao.selectPage(studentPage, queryWrapper);
 
