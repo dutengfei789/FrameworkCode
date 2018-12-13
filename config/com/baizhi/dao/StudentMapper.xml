@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.baizhi.dao.StudentDao">
+
+    <update id="multiDeleteStudent">
+        update SS_STUDENT set IS_DELETE=1 where stu_id in
+        <foreach collection="array" item="stuId" open="("  separator="," close=")">
+            #{stuId}
+        </foreach>
+    </update>
+
+
+</mapper>

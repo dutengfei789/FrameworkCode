@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/aop
+                           http://www.springframework.org/schema/aop/spring-aop.xsd
+                           http://www.springframework.org/schema/tx
+                           http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+
+      <!--扫描组件Service-->
+     <context:component-scan base-package="com.baizhi.service"/>
+
+      <!--0.读取jdbc.property小配置文件
+           system-properties-mode="NEVER": 解决读取小配置文件username获取的是当前计算机名称
+           可以根据${key} 获取小配置文件中的value值
+      -->
+      <context:property-placeholder location="classpath:jdbc.properties" system-properties-mode="NEVER"/>
+
+      <!--1.数据库连接池-->
+      <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName" value="${className}"></property>
+        <property name="url" value="${url}"></property>
+        <property name="username" value="${username}"></property>
+        <property name="password" value="${password}"></property>
+      </bean>
+
+      <!--2.SqlSessionFactroy工厂-->
+    <bean  class="com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean" >
+        <property name="dataSource" ref="dataSource"></property>
+        <property name="plugins">
+            <array>
+                <!--分页插件  帮你完成物理分页-->
+                <bean id="paginationInterceptor" class="com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor">
+                    <!--指定数据库的类型-->
+                    <property name="dialectType" value="oracle"></property>
+                </bean>
+            </array>
+        </property>
+        <!--mapper文件的路径，交给spring读取-->
+        <property name="mapperLocations">
+            <list>
+                <!--支持*号通配符-->
+                <value>classpath:com/baizhi/dao/*Mapper.xml</value>
+            </list>
+        </property>
+
+        <!--给实体类起别名-->
+        <!--
+            给指定的包下的所有类起别名：
+            别名就是类名
+            com.baizhi.ssm.com.baizhi.entity.com.baizhi.com.baizhi.entity.User===》com.baizhi.com.baizhi.entity.User
+        -->
+        <property name="typeAliasesPackage" value="com.baizhi.entity"></property>
+    </bean>
+
+      <!--3.扫描dao接口生成代理实现类-->
+    <bean  class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.baizhi.dao"></property>
+    </bean>
+
+
+
+    <!--spring 声明式事务-->
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <!--匹配到get*, 说明你想做查询操作-->
+            <tx:method name="select*" read-only="true"/>
+            <!--匹配到insert*,说明你想做添加操作-->
+            <tx:method name="*" />
+        </tx:attributes>
+    </tx:advice>
+
+    <aop:config>
+        <aop:pointcut id="pt" expression="execution(* com.baizhi.service.*.*(..))"></aop:pointcut>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="pt"></aop:advisor>
+    </aop:config>
+
+
+
+</beans>
